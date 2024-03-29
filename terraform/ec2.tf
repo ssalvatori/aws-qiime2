@@ -26,12 +26,14 @@ resource "aws_instance" "qiime2" {
 
   availability_zone = data.aws_availability_zones.main.names[0]
 
+  iam_instance_profile = aws_iam_instance_profile.this.id
+
   associate_public_ip_address = true
 
   key_name = aws_key_pair.qiime2_key.key_name
 
   vpc_security_group_ids = [aws_security_group.main.id]
-  #  user_data = file("setup.sh")
+  user_data              = file("setup.sh")
 
   ebs_optimized = true
 
@@ -41,6 +43,7 @@ resource "aws_instance" "qiime2" {
   }
 
   root_block_device {
+    volume_size = var.ec2_volume_size
     volume_type = "gp3"
   }
 
@@ -57,4 +60,8 @@ resource "aws_instance" "qiime2" {
 
   depends_on = [aws_internet_gateway.main]
 
+}
+
+output "ec2-instance-ip" {
+  value = aws_instance.qiime2.public_ip
 }
