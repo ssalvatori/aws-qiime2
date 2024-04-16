@@ -35,3 +35,4 @@ terraform.rc
 
 id_qiime2.pub
 id_qiime2
+.terraform.lock.hcl

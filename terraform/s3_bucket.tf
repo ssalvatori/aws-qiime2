@@ -2,34 +2,40 @@
 # Create S3 bucket
 #
 
-# module "s3" {
-#   source  = "terraform-aws-modules/s3-bucket/aws"
-#   version = "4.1.1"
-#
-#   bucket = local.bucket_name
-#
-#
-#   acl                     = "private"
-#   block_public_acls       = true
-#   block_public_policy     = true
-#   ignore_public_acls      = true
-#   restrict_public_buckets = true
-#
-#   control_object_ownership = true
-#   object_ownership         = "BucketOwnerPreferred"
-#
-#   force_destroy = true
-#
-#   expected_bucket_owner = data.aws_caller_identity.current.account_id
-#
-#   server_side_encryption_configuration = {
-#     rule = { apply_server_side_encryption_by_default = {
-#       sse_algorithm = "AES256"
-#       }
-#     }
-#   }
-#
-# }
+module "s3" {
+  count = var.create_bucket ? 0 : 1
+
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.1.1"
+
+  bucket = local.bucket_name
+
+
+  acl                     = "private"
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  force_destroy = true
+
+  expected_bucket_owner = data.aws_caller_identity.current.account_id
+
+  server_side_encryption_configuration = {
+    rule = { apply_server_side_encryption_by_default = {
+      sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+
+data "aws_s3_bucket" "bucket" {
+
+  bucket = local.bucket_name
+}
 
 resource "aws_iam_role" "this" {
   name = "qiime2-ec2-role"
@@ -61,7 +67,7 @@ resource "aws_iam_policy" "s3_access" {
           "s3:ListBucket",
         ]
         Effect   = "Allow"
-        Resource = module.s3.s3_bucket_arn
+        Resource = data.aws_s3_bucket.bucket.arn
       },
       {
         Sid = "MountpointFullObjectAccess"
@@ -74,12 +80,12 @@ resource "aws_iam_policy" "s3_access" {
           "s3:GetObjectTagging"
         ]
         Effect   = "Allow"
-        Resource = "${module.s3.s3_bucket_arn}/*"
+        Resource = "${data.aws_s3_bucket.arn}/*"
       }
     ]
   })
 
-  depends_on = [module.s3]
+  depends_on = [data.aws_s3_bucket.bucket]
 }
 
 resource "aws_iam_role_policy_attachment" "s3_access" {

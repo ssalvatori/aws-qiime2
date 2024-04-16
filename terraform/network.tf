@@ -47,30 +47,12 @@ resource "aws_internet_gateway" "main" {
       tags,
     ]
   }
-
-
 }
-
-# resource "aws_ec2_instance_connect_endpoint" "qiime2" {
-#   subnet_id = aws_subnet.main.id
-#
-#   security_group_ids = [aws_security_group.main.id]
-#
-#   tags = {
-#     Name = "qiime2-instance-connect"
-#   }
-# }
-
 
 data "http" "ip" {
   #url = "https://ifconfig.me/ip"
   url = "http://ipinfo.io/ip"
 }
-
-# output "ip" {
-#   value = data.http.ip.response_body
-# }
-
 
 resource "aws_main_route_table_association" "main" {
   vpc_id         = aws_vpc.main.id

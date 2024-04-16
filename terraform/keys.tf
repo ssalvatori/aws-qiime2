@@ -5,7 +5,7 @@ resource "tls_private_key" "qiime2" {
   rsa_bits  = 2048
 
 
-  provisioner "local-exec" { # Create "myKey.pem" to your computer!!
+  provisioner "local-exec" {
     command = "echo '${trimspace(tls_private_key.qiime2[0].private_key_openssh)}' > ${local.private_key_filename}"
   }
 
@@ -31,13 +31,3 @@ resource "aws_key_pair" "qiime2_key" {
 
   depends_on = [tls_private_key.qiime2, data.local_file.public_ssh_key]
 }
-
-# resource "local_file" "pem_file" {
-#   count = fileexists(local.private_key_filename) ? 0 : 1
-#
-#   filename        = pathexpand(local.private_key_filename)
-#   file_permission = "600"
-#   #  directory_permission = "700"
-#   content = tls_private_key.qiime2[0].private_key_pem
-# }
-

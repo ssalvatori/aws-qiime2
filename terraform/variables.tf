@@ -40,3 +40,9 @@ variable "bucket_name" {
   description = "S3 bucket to be used to store files"
   default     = "qiime2-ec2-test"
 }
+
+variable "create_bucket" {
+  type        = bool
+  description = "Create S3 bucket"
+  default     = false
+}
